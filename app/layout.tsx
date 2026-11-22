@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import Navigation from "@/components/navigation";
+import Footer from "@/components/footer";
 import { GlassProvider } from "@/components/glass-provider";
 import { accessibilityInitScript, glassInitScript } from "@/lib/preference-scripts";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           <GlassProvider>
             <Navigation />
             <main className="w-full pb-12">{children}</main>
+            <Footer />
           </GlassProvider>
         </ThemeProvider>
       </body>
