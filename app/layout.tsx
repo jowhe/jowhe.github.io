@@ -28,6 +28,7 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", fontSans.variable)}
     >
       <head>
+        <title>Joe Howe - Pages</title>
         <script dangerouslySetInnerHTML={{ __html: glassInitScript + accessibilityInitScript }} />
       </head>
       <body>
