@@ -38,6 +38,7 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    --color-page: var(--page);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -49,6 +50,7 @@
 
 :root {
     --background: oklch(1 0 0);
+    --page: oklch(0.975 0.02 95); /* warm off-white, page only */
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
@@ -84,6 +86,7 @@
 
 .dark {
     --background: oklch(0.145 0 0);
+    --page: oklch(0.269 0 0); /* neutral-800, page only */
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
     --card-foreground: oklch(0.985 0 0);
@@ -121,9 +124,129 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-page text-foreground;
     }
   html {
     @apply font-sans;
     }
+}
+
+/*
+ * Liquid-glass surface. Add the `glass` class to any element (or use
+ * <Glass> / glassVariants()). Glass is on by default and is switched off with
+ * <html data-glass="off">, which restores the element's normal styling. Anything inside
+ * an element with data-glass-scope="none" (e.g. <Bento>, by default) is left unstyled.
+ */
+@utility glass {
+  --glass-blur: 20px;
+  --glass-tint: 45%;
+
+  :root[data-contrast="high"] & {
+    --glass-blur: 0px;
+    --glass-tint: 100%;
+  }
+
+  :root:not([data-glass="off"]) &:not(:where([data-glass-scope="none"] *)) {
+    background-color: color-mix(in oklab, var(--background) var(--glass-tint), transparent);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border-color: color-mix(in oklab, var(--foreground) 12%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 55%),
+      inset 0 -1px 0 0 oklch(1 0 0 / 10%),
+      0 8px 32px oklch(0 0 0 / 10%);
+  }
+
+  :root.dark:not([data-glass="off"]) &:not(:where([data-glass-scope="none"] *)) {
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 18%),
+      inset 0 -1px 0 0 oklch(1 0 0 / 5%),
+      0 8px 32px oklch(0 0 0 / 35%);
+  }
+
+  :root:not([data-glass="off"]) &:not(:where([data-glass-scope="none"] *)):is(button, a, [role="button"]):hover {
+    background-color: color-mix(in oklab, var(--background) calc(var(--glass-tint) + 15%), transparent);
+  }
+
+  @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    :root:not([data-glass="off"]) &:not(:where([data-glass-scope="none"] *)) {
+      background-color: color-mix(in oklab, var(--background) 92%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    :root:not([data-glass="off"]) &:not(:where([data-glass-scope="none"] *)) {
+      background-color: var(--background);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}
+
+/* Accessibility preferences (set on <html> by components/accessibility-settings.tsx). */
+:root[data-text="large"] {
+  font-size: 125%;
+}
+
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+:root[data-contrast="high"] {
+  --foreground: oklch(0 0 0);
+  --muted-foreground: oklch(0.35 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: oklch(0.2 0 0);
+}
+
+:root.dark[data-contrast="high"] {
+  --foreground: oklch(1 0 0);
+  --muted-foreground: oklch(0.85 0 0);
+  --border: oklch(1 0 0 / 60%);
+  --input: oklch(1 0 0 / 60%);
+  --ring: oklch(0.9 0 0);
+}
+
+
+/* Navigation icon animations, one per link (see components/navigation.tsx). */
+@theme {
+  --animate-nav-home: nav-home 0.6s ease-out;
+  --animate-nav-work: nav-work 0.7s ease-in-out;
+  --animate-nav-contact: nav-contact 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  @keyframes nav-home {
+    0%, 100% { translate: 0 0; scale: 1 1; }
+    25% { translate: 0 -4px; scale: 0.95 1.1; }
+    50% { translate: 0 0; scale: 1.15 0.85; }
+    75% { translate: 0 -2px; scale: 1 1; }
+  }
+
+  @keyframes nav-work {
+    0%, 100% { rotate: 0deg; translate: 0 0; }
+    20% { rotate: -20deg; translate: -1px 0; }
+    45% { rotate: 12deg; translate: 1px 1px; }
+    70% { rotate: -10deg; translate: -1px 0; }
+  }
+
+  @keyframes nav-contact {
+    0% { scale: 0.6; rotate: -30deg; }
+    60% { scale: 1.25; rotate: 10deg; }
+    100% { scale: 1; rotate: 0deg; }
+  }
+}
+
+
+/*
+ * Shared width of the centred content column (nav + bento): half the screen on large
+ * displays, widening to 40rem, then to the full width minus a 1rem gutter on small
+ * ones. Continuous, so there is no breakpoint to maintain.
+ */
+@utility content-width {
+  width: max(50%, min(100% - 2rem, 40rem));
 }
